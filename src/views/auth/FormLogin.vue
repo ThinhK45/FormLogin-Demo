@@ -7,20 +7,31 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const checked = ref(false);
-const taiKhoan = ref('');
-const matKhau = ref('');
+const userInfo = ref({
+    taiKhoan: '',
+    matKhau: '',
+});
+
 async function handleLogin() {
     await axios
         .post('https://api-cokyvina.vnpttravinh.vn/xac-thuc/dang-nhap', {
-            taiKhoan: taiKhoan.value,
-            matKhau: encodeBase64(matKhau.value),
+            taiKhoan: userInfo.value.taiKhoan,
+            matKhau: encodeBase64(userInfo.value.matKhau),
         })
         .then((response) => {
-            console.log(response);
-            return router.push({ name: 'accessDenied' });
+            // if (!response.data.data.accessToken) {
+            //     localStorage.removeItem('accessToken');
+            //     throw new Error('Whoops, no access token found!');
+            // }
+
+            localStorage.setItem('accessToken', JSON.stringify(response));
+            const token = JSON.parse(localStorage.getItem('accessToken'));
+            console.log(response.data);
+            return router.push({ name: 'changePassword' });
         })
         .catch((error) => {
-            // console.log(error);
+            localStorage.removeItem('accessToken');
+            console.log(error);
             return router.push({ name: 'error' });
         });
 }
@@ -75,7 +86,7 @@ async function handleLogin() {
                             placeholder="Email address"
                             class="w-full md:w-30rem mb-5"
                             style="padding: 1rem"
-                            v-model="taiKhoan"
+                            v-model="userInfo.taiKhoan"
                         />
 
                         <label
@@ -85,7 +96,7 @@ async function handleLogin() {
                         >
                         <Password
                             id="password1"
-                            v-model="matKhau"
+                            v-model="userInfo.matKhau"
                             placeholder="Password"
                             :toggleMask="true"
                             class="w-full mb-3"

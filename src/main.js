@@ -13,7 +13,12 @@ import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import Checkbox from 'primevue/checkbox';
 import Password from 'primevue/password';
+import { createPinia } from 'pinia';
+
+const pinia = createPinia();
+
 const app = createApp(App);
+app.use(pinia);
 app.use(PrimeVue);
 app.use(router);
 app.component('Password', Password);

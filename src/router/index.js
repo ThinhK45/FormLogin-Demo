@@ -20,6 +20,11 @@ const routes = [
         name: 'error',
         component: () => import('../views/auth/Error.vue'),
     },
+    {
+        path: '/change-password',
+        name: 'changePassword',
+        component: () => import('../views/auth/ChangePassword.vue'),
+    },
 ];
 
 const router = createRouter({
