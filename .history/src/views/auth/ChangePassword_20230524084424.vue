@@ -14,7 +14,12 @@ import {
     alphaNum,
 } from '@vuelidate/validators';
 const router = useRouter();
-const token = localStorage.getItem('accessToken');
+const token = JSON.parse(localStorage.getItem('accessToken'));
+const config = {
+    headers: {
+        'x-access-token': token.data.data.accessToken,
+    },
+};
 
 const matKhau = reactive({
     matKhauHienTai: '',
@@ -39,7 +44,7 @@ const rules = computed(() => {
             minLength: minLength(6),
             maxLength: maxLength(20),
             containPassword: helpers.withMessage(
-                'The new password must be different from the old password',
+                'Mật khẩu mới không được trùng mới mật khẩu hiện tại',
                 containPassword
             ),
         },
@@ -58,18 +63,16 @@ const v$ = useVuelidate(rules, matKhau);
 async function handleChangePassword() {
     const result = await v$.value.$validate();
     if (result) {
-        await axios({
-            method: 'put',
-            url: 'https://api-cokyvina.vnpttravinh.vn/nguoi-dung/doi-mat-khau',
-            data: {
-                matKhauHienTai: encodeBase64(matKhau.matKhauHienTai),
-                matKhauMoi: encodeBase64(matKhau.matKhauMoi),
-                xacNhanMatKhauMoi: encodeBase64(matKhau.xacNhanMatKhauMoi),
-            },
-            headers: {
-                'x-access-token': token,
-            },
-        })
+        await axios
+            .put(
+                'https://api-cokyvina.vnpttravinh.vn/nguoi-dung/doi-mat-khau',
+                {
+                    matKhauHienTai: encodeBase64(matKhau.matKhauHienTai),
+                    matKhauMoi: encodeBase64(matKhau.matKhauMoi),
+                    xacNhanMatKhauMoi: encodeBase64(matKhau.xacNhanMatKhauMoi),
+                },
+                config
+            )
             .then((response) => {
                 alert('Đổi mật khẩu thành công');
                 console.log(response);
@@ -85,6 +88,26 @@ async function handleChangePassword() {
     }
 }
 
+// async function handleChangePassword() {
+//     await axios
+//         .put(
+//             'https://api-cokyvina.vnpttravinh.vn/nguoi-dung/doi-mat-khau',
+//             {
+//                 matKhauHienTai: encodeBase64(matKhau.matKhauHienTai),
+//                 matKhauMoi: encodeBase64(matKhau.matKhauMoi),
+//                 xacNhanMatKhauMoi: encodeBase64(matKhau.xacNhanMatKhauMoi),
+//             },
+//             config
+//         )
+//         .then((response) => {
+//             console.log(response);
+//             return router.push({ name: 'accessDenied' });
+//         })
+//         .catch((error) => {
+//             console.log(error);
+//             return router.push({ name: 'error' });
+//         });
+// }
 function resetPassword() {
     matKhau.matKhauHienTai = '';
     matKhau.matKhauMoi = '';

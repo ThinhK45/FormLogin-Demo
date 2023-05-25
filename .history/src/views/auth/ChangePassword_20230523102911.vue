@@ -14,22 +14,22 @@ import {
     alphaNum,
 } from '@vuelidate/validators';
 const router = useRouter();
-const token = localStorage.getItem('accessToken');
-
+const token = JSON.parse(localStorage.getItem('accessToken'));
+const config = {
+    headers: {
+        'x-access-token': token.data.data.accessToken,
+    },
+};
 const matKhau = reactive({
     matKhauHienTai: '',
     matKhauMoi: '',
     xacNhanMatKhauMoi: '',
 });
-const containPassword = () => {
-    return !(matKhau.matKhauMoi == matKhau.matKhauHienTai);
-};
 
 const rules = computed(() => {
     return {
         matKhauHienTai: {
             required,
-            alphaNum,
             minLength: minLength(6),
             maxLength: maxLength(20),
         },
@@ -38,10 +38,6 @@ const rules = computed(() => {
             alphaNum,
             minLength: minLength(6),
             maxLength: maxLength(20),
-            containPassword: helpers.withMessage(
-                'The new password must be different from the old password',
-                containPassword
-            ),
         },
         xacNhanMatKhauMoi: {
             required,
@@ -58,25 +54,22 @@ const v$ = useVuelidate(rules, matKhau);
 async function handleChangePassword() {
     const result = await v$.value.$validate();
     if (result) {
-        await axios({
-            method: 'put',
-            url: 'https://api-cokyvina.vnpttravinh.vn/nguoi-dung/doi-mat-khau',
-            data: {
-                matKhauHienTai: encodeBase64(matKhau.matKhauHienTai),
-                matKhauMoi: encodeBase64(matKhau.matKhauMoi),
-                xacNhanMatKhauMoi: encodeBase64(matKhau.xacNhanMatKhauMoi),
-            },
-            headers: {
-                'x-access-token': token,
-            },
-        })
+        alert('Đổi mật khẩu thành công');
+        await axios
+            .put(
+                'https://api-cokyvina.vnpttravinh.vn/nguoi-dung/doi-mat-khau',
+                {
+                    matKhauHienTai: encodeBase64(matKhau.matKhauHienTai),
+                    matKhauMoi: encodeBase64(matKhau.matKhauMoi),
+                    xacNhanMatKhauMoi: encodeBase64(matKhau.xacNhanMatKhauMoi),
+                },
+                config
+            )
             .then((response) => {
-                alert('Đổi mật khẩu thành công');
                 console.log(response);
                 return router.push({ name: 'accessDenied' });
             })
             .catch((error) => {
-                alert('Đổi mật khẩu không thành công');
                 console.log(error);
                 return router.push({ name: 'error' });
             });
@@ -85,6 +78,26 @@ async function handleChangePassword() {
     }
 }
 
+// async function handleChangePassword() {
+//     await axios
+//         .put(
+//             'https://api-cokyvina.vnpttravinh.vn/nguoi-dung/doi-mat-khau',
+//             {
+//                 matKhauHienTai: encodeBase64(matKhau.matKhauHienTai),
+//                 matKhauMoi: encodeBase64(matKhau.matKhauMoi),
+//                 xacNhanMatKhauMoi: encodeBase64(matKhau.xacNhanMatKhauMoi),
+//             },
+//             config
+//         )
+//         .then((response) => {
+//             console.log(response);
+//             return router.push({ name: 'accessDenied' });
+//         })
+//         .catch((error) => {
+//             console.log(error);
+//             return router.push({ name: 'error' });
+//         });
+// }
 function resetPassword() {
     matKhau.matKhauHienTai = '';
     matKhau.matKhauMoi = '';
@@ -201,15 +214,15 @@ function resetPassword() {
                                 error.$message || '&nbsp;'
                             }}</small>
                         </div>
-                        <div class="flex justify-content-between mt-3">
+                        <div class="flex justify-content-between">
                             <Button
                                 label="Hủy"
-                                class="w-5 p-3 text-xl"
+                                class="w-5 p-3 text-l"
                                 @click="resetPassword"
                             ></Button>
                             <Button
                                 label="Lưu"
-                                class="w-5 p-3 text-xl"
+                                class="w-5 p-3 text-l"
                                 @click="handleChangePassword"
                             ></Button>
                         </div>

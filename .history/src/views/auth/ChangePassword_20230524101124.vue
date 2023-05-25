@@ -39,7 +39,7 @@ const rules = computed(() => {
             minLength: minLength(6),
             maxLength: maxLength(20),
             containPassword: helpers.withMessage(
-                'The new password must be different from the old password',
+                'The new password must be different from the current password',
                 containPassword
             ),
         },

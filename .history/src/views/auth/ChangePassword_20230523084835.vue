@@ -1,94 +1,50 @@
 <script setup>
-import { onMounted, reactive, computed } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { encodeBase64 } from '@progress/kendo-file-saver';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import useVuelidate from '@vuelidate/core';
-import {
-    required,
-    minLength,
-    sameAs,
-    maxLength,
-    helpers,
-    not,
-    alphaNum,
-} from '@vuelidate/validators';
-const router = useRouter();
-const token = localStorage.getItem('accessToken');
 
+const router = useRouter();
+const token = JSON.parse(localStorage.getItem('accessToken'));
+
+// const matKhauHienTai = ref('');
+// const matKhauMoi = ref('');
+// const xacNhanMatKhauMoi = ref('');
 const matKhau = reactive({
     matKhauHienTai: '',
     matKhauMoi: '',
     xacNhanMatKhauMoi: '',
 });
-const containPassword = () => {
-    return !(matKhau.matKhauMoi == matKhau.matKhauHienTai);
+
+const config = {
+    headers: {
+        'x-access-token': token.data.data.accessToken,
+    },
 };
-
-const rules = computed(() => {
-    return {
-        matKhauHienTai: {
-            required,
-            alphaNum,
-            minLength: minLength(6),
-            maxLength: maxLength(20),
-        },
-        matKhauMoi: {
-            required,
-            alphaNum,
-            minLength: minLength(6),
-            maxLength: maxLength(20),
-            containPassword: helpers.withMessage(
-                'The new password must be different from the old password',
-                containPassword
-            ),
-        },
-        xacNhanMatKhauMoi: {
-            required,
-            alphaNum,
-            minLength: minLength(6),
-            maxLength: maxLength(20),
-            sameAs: sameAs(matKhau.matKhauMoi),
-        },
-    };
-});
-
-const v$ = useVuelidate(rules, matKhau);
-
 async function handleChangePassword() {
-    const result = await v$.value.$validate();
-    if (result) {
-        await axios({
-            method: 'put',
-            url: 'https://api-cokyvina.vnpttravinh.vn/nguoi-dung/doi-mat-khau',
-            data: {
-                matKhauHienTai: encodeBase64(matKhau.matKhauHienTai),
-                matKhauMoi: encodeBase64(matKhau.matKhauMoi),
-                xacNhanMatKhauMoi: encodeBase64(matKhau.xacNhanMatKhauMoi),
+    await axios
+        .put(
+            'https://api-cokyvina.vnpttravinh.vn/nguoi-dung/doi-mat-khau',
+            {
+                matKhauHienTai: encodeBase64(matKhauHienTai.value),
+                matKhauMoi: encodeBase64(matKhauMoi.value),
+                xacNhanMatKhauMoi: encodeBase64(xacNhanMatKhauMoi.value),
             },
-            headers: {
-                'x-access-token': token,
-            },
+            config
+        )
+        .then((response) => {
+            console.log(response);
+            return router.push({ name: 'accessDenied' });
         })
-            .then((response) => {
-                alert('Đổi mật khẩu thành công');
-                console.log(response);
-                return router.push({ name: 'accessDenied' });
-            })
-            .catch((error) => {
-                alert('Đổi mật khẩu không thành công');
-                console.log(error);
-                return router.push({ name: 'error' });
-            });
-    } else {
-        alert('Đổi mật khẩu không thành công');
-    }
+        .catch((error) => {
+            console.log(error);
+            return router.push({ name: 'error' });
+        });
 }
-
 function resetPassword() {
-    matKhau.matKhauHienTai = '';
-    matKhau.matKhauMoi = '';
-    matKhau.xacNhanMatKhauMoi = '';
+    matKhauHienTai.value = '';
+    matKhauMoi.value = '';
+    xacNhanMatKhauMoi.value = '';
 }
 </script>
 
@@ -135,22 +91,13 @@ function resetPassword() {
                         <Password
                             id="password1"
                             :feedback="false"
-                            v-model="matKhau.matKhauHienTai"
+                            v-model="matKhauHienTai"
                             placeholder="Mật khẩu hiện tại"
                             :toggleMask="true"
-                            class="w-full mb-2 md:w-30rem"
+                            class="w-full mb-3 md:w-30rem"
                             inputClass="w-full"
                             inputStyle="padding:1rem"
                         ></Password>
-                        <div
-                            class="mb-3 w-full"
-                            v-for="error in v$.matKhauHienTai.$errors"
-                            :key="error.$uid"
-                        >
-                            <small class="p-error">{{
-                                error.$message || '&nbsp;'
-                            }}</small>
-                        </div>
 
                         <label
                             for="password2"
@@ -160,22 +107,13 @@ function resetPassword() {
                         <Password
                             id="password2"
                             :feedback="false"
-                            v-model="matKhau.matKhauMoi"
+                            v-model="matKhauMoi"
                             placeholder="Mật khẩu mới"
                             :toggleMask="true"
-                            class="w-full mb-2"
+                            class="w-full mb-3"
                             inputClass="w-full"
                             inputStyle="padding:1rem"
                         ></Password>
-                        <div
-                            class="mb-3 w-full"
-                            v-for="error in v$.matKhauMoi.$errors"
-                            :key="error.$uid"
-                        >
-                            <small class="p-error">{{
-                                error.$message || '&nbsp;'
-                            }}</small>
-                        </div>
 
                         <label
                             for="password3"
@@ -185,31 +123,23 @@ function resetPassword() {
                         <Password
                             id="password3"
                             :feedback="false"
-                            v-model="matKhau.xacNhanMatKhauMoi"
+                            v-model="xacNhanMatKhauMoi"
                             placeholder="Xác nhận mật khẩu mới"
                             :toggleMask="true"
-                            class="w-full mb-2"
+                            class="w-full mb-3"
                             inputClass="w-full"
                             inputStyle="padding:1rem"
                         ></Password>
-                        <div
-                            class="mb-3 w-full"
-                            v-for="error in v$.xacNhanMatKhauMoi.$errors"
-                            :key="error.$uid"
-                        >
-                            <small class="p-error">{{
-                                error.$message || '&nbsp;'
-                            }}</small>
-                        </div>
-                        <div class="flex justify-content-between mt-3">
+
+                        <div class="flex justify-content-between">
                             <Button
                                 label="Hủy"
-                                class="w-5 p-3 text-xl"
+                                class="w-5 p-3 text-l"
                                 @click="resetPassword"
                             ></Button>
                             <Button
                                 label="Lưu"
-                                class="w-5 p-3 text-xl"
+                                class="w-5 p-3 text-l"
                                 @click="handleChangePassword"
                             ></Button>
                         </div>

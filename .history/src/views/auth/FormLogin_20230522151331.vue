@@ -11,21 +11,33 @@ const userInfo = ref({
     taiKhoan: '',
     matKhau: '',
 });
-
+// const taiKhoan = ref('');
+// const matKhau = ref('');
+// const store = useAuthStore();
+// const { isUserLoggedIn } = storeToRefs(store);
+// const { login, logout } = store;
 async function handleLogin() {
     await axios
-        .post('https://api-cokyvina.vnpttravinh.vn/xac-thuc/dang-nhap', {
-            taiKhoan: userInfo.value.taiKhoan,
-            matKhau: encodeBase64(userInfo.value.matKhau),
-        })
+        .post(
+            'https://api-cokyvina.vnpttravinh.vn/xac-thuc/dang-nhap',
+            {
+                taiKhoan: userInfo.value.taiKhoan,
+                matKhau: encodeBase64(userInfo.value.matKhau),
+            }
+            // {
+            //     headers: {
+            //         'x-access-token': response.data.data.accessToken,
+            //     },
+            // }
+        )
         .then((response) => {
             // if (!response.data.data.accessToken) {
             //     localStorage.removeItem('accessToken');
             //     throw new Error('Whoops, no access token found!');
             // }
 
-            localStorage.setItem('accessToken', response.data.data.accessToken);
-            // const token = JSON.parse(localStorage.getItem('accessToken'));
+            localStorage.setItem('accessToken', JSON.stringify(response));
+            const token = JSON.parse(localStorage.getItem('accessToken'));
             console.log(response.data);
             return router.push({ name: 'changePassword' });
         })

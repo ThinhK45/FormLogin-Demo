@@ -11,23 +11,43 @@ const userInfo = ref({
     taiKhoan: '',
     matKhau: '',
 });
-
+// const taiKhoan = ref('');
+// const matKhau = ref('');
+// const store = useAuthStore();
+// const { isUserLoggedIn } = storeToRefs(store);
+// const { login, logout } = store;
 async function handleLogin() {
     await axios
-        .post('https://api-cokyvina.vnpttravinh.vn/xac-thuc/dang-nhap', {
-            taiKhoan: userInfo.value.taiKhoan,
-            matKhau: encodeBase64(userInfo.value.matKhau),
-        })
-        .then((response) => {
-            // if (!response.data.data.accessToken) {
-            //     localStorage.removeItem('accessToken');
-            //     throw new Error('Whoops, no access token found!');
+        .post(
+            'https://api-cokyvina.vnpttravinh.vn/xac-thuc/dang-nhap',
+            {
+                taiKhoan: userInfo.value.taiKhoan,
+                matKhau: encodeBase64(userInfo.value.matKhau),
+            }
+            // {
+            //     headers: {
+            //         'x-access-token': response.data.data.accessToken,
+            //     },
             // }
-
-            localStorage.setItem('accessToken', response.data.data.accessToken);
-            // const token = JSON.parse(localStorage.getItem('accessToken'));
+        )
+        .then((response) => {
+            if (!response.data.data.accessToken) {
+                localStorage.removeItem('accessToken');
+                throw new Error('Whoops, no access token found!');
+            }
+            // user = response;
+            localStorage.setItem('accessToken', JSON.stringify(response));
+            const token = JSON.parse(localStorage.getItem('accessToken'));
+            console.log(token.data.data.accessToken);
             console.log(response.data);
-            return router.push({ name: 'changePassword' });
+            console.log(response.config.data);
+            console.log(response.data.data.accessToken);
+            // return router.push({ name: 'accessDenied' });
+            return router.push('/');
+            // console.log(response);
+            // console.log(response.status);
+            // console.log(response.data.data.accessToken);
+            // return router.push({ name: 'accessDenied' });
         })
         .catch((error) => {
             localStorage.removeItem('accessToken');
@@ -35,6 +55,18 @@ async function handleLogin() {
             return router.push({ name: 'error' });
         });
 }
+
+// async function handleLogin(user) {
+//     try {
+//         await login(user);
+//         // location.href = 'http://127.0.0.1:5173/change-password';
+//         console.log(user);
+//         console.log(user.config.data);
+//         console.log('thanh cong');
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
 </script>
 
 <template>

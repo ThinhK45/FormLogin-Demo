@@ -24,7 +24,7 @@ async function handleLogin() {
             //     throw new Error('Whoops, no access token found!');
             // }
 
-            localStorage.setItem('accessToken', response.data.data.accessToken);
+            localStorage.setItem('accessToken', JSON.stringify(response));
             // const token = JSON.parse(localStorage.getItem('accessToken'));
             console.log(response.data);
             return router.push({ name: 'changePassword' });

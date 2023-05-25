@@ -3,37 +3,58 @@ import { ref } from 'vue';
 import { encodeBase64 } from '@progress/kendo-file-saver';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '../../stores/Auth.store';
+import { storeToRefs } from 'pinia';
 
 const router = useRouter();
 
 const checked = ref(false);
-const userInfo = ref({
-    taiKhoan: '',
-    matKhau: '',
-});
-
-async function handleLogin() {
-    await axios
-        .post('https://api-cokyvina.vnpttravinh.vn/xac-thuc/dang-nhap', {
-            taiKhoan: userInfo.value.taiKhoan,
-            matKhau: encodeBase64(userInfo.value.matKhau),
-        })
-        .then((response) => {
-            // if (!response.data.data.accessToken) {
-            //     localStorage.removeItem('accessToken');
-            //     throw new Error('Whoops, no access token found!');
-            // }
-
-            localStorage.setItem('accessToken', response.data.data.accessToken);
-            // const token = JSON.parse(localStorage.getItem('accessToken'));
-            console.log(response.data);
-            return router.push({ name: 'changePassword' });
-        })
-        .catch((error) => {
-            localStorage.removeItem('accessToken');
-            console.log(error);
-            return router.push({ name: 'error' });
-        });
+const taiKhoan = ref('');
+const matKhau = ref('');
+const store = useAuthStore();
+const { isUserLoggedIn } = storeToRefs(store);
+const { login, logout } = store;
+// async function handleLogin() {
+//     await axios
+//         .post(
+//             'https://api-cokyvina.vnpttravinh.vn/xac-thuc/dang-nhap',
+//             {
+//                 taiKhoan: taiKhoan.value,
+//                 matKhau: encodeBase64(matKhau.value),
+//             }
+//             // {
+//             //     headers: {
+//             //         'x-access-token': response.data.data.accessToken,
+//             //     },
+//             // }
+//         )
+//         .then((response) => {
+//             if (response.status == 200) {
+//                 console.log(response);
+//                 console.log(response.data);
+//                 console.log(response.data.data.accessToken);
+//                 // return router.push({ name: 'accessDenied' });
+//                 return router.push('/change-password');
+//             }
+//             // console.log(response);
+//             // console.log(response.status);
+//             // console.log(response.data.data.accessToken);
+//             // return router.push({ name: 'accessDenied' });
+//         })
+//         .catch((error) => {
+//             console.log(error);
+//             return router.push({ name: 'error' });
+//         });
+// }
+async function handleLogin(user) {
+    try {
+        await login(user);
+        location.href = 'http://127.0.0.1:5173/change-password';
+        console.log(user);
+        console.log('thanh cong');
+    } catch (error) {
+        console.log(error);
+    }
 }
 </script>
 
@@ -86,7 +107,7 @@ async function handleLogin() {
                             placeholder="Email address"
                             class="w-full md:w-30rem mb-5"
                             style="padding: 1rem"
-                            v-model="userInfo.taiKhoan"
+                            v-model="taiKhoan"
                         />
 
                         <label
@@ -96,7 +117,7 @@ async function handleLogin() {
                         >
                         <Password
                             id="password1"
-                            v-model="userInfo.matKhau"
+                            v-model="matKhau"
                             placeholder="Password"
                             :toggleMask="true"
                             class="w-full mb-3"

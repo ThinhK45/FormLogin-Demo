@@ -39,7 +39,7 @@ const rules = computed(() => {
             minLength: minLength(6),
             maxLength: maxLength(20),
             containPassword: helpers.withMessage(
-                'The new password must be different from the old password',
+                'The new password must be different from the current password',
                 containPassword
             ),
         },
@@ -61,7 +61,7 @@ async function handleChangePassword() {
         await axios({
             method: 'put',
             url: 'https://api-cokyvina.vnpttravinh.vn/nguoi-dung/doi-mat-khau',
-            data: {
+            body: {
                 matKhauHienTai: encodeBase64(matKhau.matKhauHienTai),
                 matKhauMoi: encodeBase64(matKhau.matKhauMoi),
                 xacNhanMatKhauMoi: encodeBase64(matKhau.xacNhanMatKhauMoi),

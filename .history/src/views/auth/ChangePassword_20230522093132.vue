@@ -7,31 +7,20 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const checked = ref(false);
-const userInfo = ref({
-    taiKhoan: '',
-    matKhau: '',
-});
-
+const taiKhoan = ref('');
+const matKhau = ref('');
 async function handleLogin() {
     await axios
         .post('https://api-cokyvina.vnpttravinh.vn/xac-thuc/dang-nhap', {
-            taiKhoan: userInfo.value.taiKhoan,
-            matKhau: encodeBase64(userInfo.value.matKhau),
+            taiKhoan: taiKhoan.value,
+            matKhau: encodeBase64(matKhau.value),
         })
         .then((response) => {
-            // if (!response.data.data.accessToken) {
-            //     localStorage.removeItem('accessToken');
-            //     throw new Error('Whoops, no access token found!');
-            // }
-
-            localStorage.setItem('accessToken', response.data.data.accessToken);
-            // const token = JSON.parse(localStorage.getItem('accessToken'));
-            console.log(response.data);
-            return router.push({ name: 'changePassword' });
+            console.log(response);
+            return router.push({ name: 'accessDenied' });
         })
         .catch((error) => {
-            localStorage.removeItem('accessToken');
-            console.log(error);
+            // console.log(error);
             return router.push({ name: 'error' });
         });
 }
@@ -78,52 +67,50 @@ async function handleLogin() {
                         <label
                             for="username"
                             class="block text-900 text-xl font-medium mb-2"
-                            >UserName</label
-                        >
-                        <InputText
-                            id="username"
-                            type="text"
-                            placeholder="Email address"
-                            class="w-full md:w-30rem mb-5"
-                            style="padding: 1rem"
-                            v-model="userInfo.taiKhoan"
-                        />
-
-                        <label
-                            for="password1"
-                            class="block text-900 font-medium text-xl mb-2"
-                            >Password</label
+                            >Mật khẩu hiện tại</label
                         >
                         <Password
                             id="password1"
-                            v-model="userInfo.matKhau"
-                            placeholder="Password"
+                            v-model="matKhauHienTai"
+                            placeholder="Mật khẩu hiện tại"
                             :toggleMask="true"
                             class="w-full mb-3"
                             inputClass="w-full"
                             inputStyle="padding:1rem"
                         ></Password>
 
-                        <div
-                            class="flex align-items-center justify-content-between mb-5 gap-5"
+                        <label
+                            for="password2"
+                            class="block text-900 font-medium text-xl mb-2"
+                            >Mật Khẩu mới</label
                         >
-                            <div class="flex align-items-center">
-                                <Checkbox
-                                    v-model="checked"
-                                    id="rememberme1"
-                                    binary
-                                    class="mr-2"
-                                ></Checkbox>
-                                <label for="rememberme1">Remember me</label>
-                            </div>
-                            <a
-                                class="font-medium no-underline ml-2 text-right cursor-pointer"
-                                style="color: var(--primary-color)"
-                                >Forgot password?</a
-                            >
-                        </div>
+                        <Password
+                            id="password2"
+                            v-model="matKhauMoi"
+                            placeholder="Mật khẩu mới"
+                            :toggleMask="true"
+                            class="w-full mb-3"
+                            inputClass="w-full"
+                            inputStyle="padding:1rem"
+                        ></Password>
+
+                        <label
+                            for="password3"
+                            class="block text-900 font-medium text-xl mb-2"
+                            >Xác nhận mật Khẩu mới</label
+                        >
+                        <Password
+                            id="password3"
+                            v-model="matKhauMoi"
+                            placeholder="Xác nhận mật khẩu mới"
+                            :toggleMask="true"
+                            class="w-full mb-3"
+                            inputClass="w-full"
+                            inputStyle="padding:1rem"
+                        ></Password>
+
                         <Button
-                            label="Sign In"
+                            label="Lưu"
                             class="w-full p-3 text-xl"
                             @click="handleLogin"
                         ></Button>

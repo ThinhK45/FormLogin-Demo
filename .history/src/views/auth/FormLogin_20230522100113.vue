@@ -7,31 +7,31 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const checked = ref(false);
-const userInfo = ref({
-    taiKhoan: '',
-    matKhau: '',
-});
-
+const taiKhoan = ref('');
+const matKhau = ref('');
 async function handleLogin() {
     await axios
-        .post('https://api-cokyvina.vnpttravinh.vn/xac-thuc/dang-nhap', {
-            taiKhoan: userInfo.value.taiKhoan,
-            matKhau: encodeBase64(userInfo.value.matKhau),
-        })
-        .then((response) => {
-            // if (!response.data.data.accessToken) {
-            //     localStorage.removeItem('accessToken');
-            //     throw new Error('Whoops, no access token found!');
+        .post(
+            'https://api-cokyvina.vnpttravinh.vn/xac-thuc/dang-nhap',
+            {
+                taiKhoan: taiKhoan.value,
+                matKhau: encodeBase64(matKhau.value),
+            }
+            // {
+            //     headers: {
+            //         'x-access-token': response.data.data.accessToken,
+            //     },
             // }
-
-            localStorage.setItem('accessToken', response.data.data.accessToken);
-            // const token = JSON.parse(localStorage.getItem('accessToken'));
-            console.log(response.data);
-            return router.push({ name: 'changePassword' });
+        )
+        .then((response) => {
+            if (response.data.status == 200) {
+                console.log(response);
+                console.log(response.data.data.accessToken);
+                return router.push({ name: 'accessDenied' });
+            }
         })
         .catch((error) => {
-            localStorage.removeItem('accessToken');
-            console.log(error);
+            // console.log(error);
             return router.push({ name: 'error' });
         });
 }
@@ -86,7 +86,7 @@ async function handleLogin() {
                             placeholder="Email address"
                             class="w-full md:w-30rem mb-5"
                             style="padding: 1rem"
-                            v-model="userInfo.taiKhoan"
+                            v-model="taiKhoan"
                         />
 
                         <label
@@ -96,7 +96,7 @@ async function handleLogin() {
                         >
                         <Password
                             id="password1"
-                            v-model="userInfo.matKhau"
+                            v-model="matKhau"
                             placeholder="Password"
                             :toggleMask="true"
                             class="w-full mb-3"
