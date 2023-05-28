@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, computed } from 'vue';
+import { onMounted, reactive, computed, onUpdated } from 'vue';
 import { encodeBase64 } from '@progress/kendo-file-saver';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
@@ -71,17 +71,18 @@ async function handleChangePassword() {
             },
         })
             .then((response) => {
-                alert('Đổi mật khẩu thành công');
+                alert('Change password successfully');
                 console.log(response);
+                console.log(router);
                 return router.push({ name: 'accessDenied' });
             })
             .catch((error) => {
-                alert('Đổi mật khẩu không thành công');
+                alert('Password change failed');
                 console.log(error);
                 return router.push({ name: 'error' });
             });
     } else {
-        alert('Đổi mật khẩu không thành công');
+        alert('Password change failed');
     }
 }
 
@@ -122,7 +123,7 @@ function resetPassword() {
                             class="mb-3"
                         />
                         <div class="text-900 text-3xl font-medium mb-3">
-                            Thay đổi mật khẩu
+                            Change Password
                         </div>
                     </div>
 
@@ -130,13 +131,13 @@ function resetPassword() {
                         <label
                             for="password1"
                             class="block text-900 text-xl font-medium mb-2"
-                            >Mật khẩu hiện tại</label
+                            >Current Password</label
                         >
                         <Password
                             id="password1"
                             :feedback="false"
                             v-model="matKhau.matKhauHienTai"
-                            placeholder="Mật khẩu hiện tại"
+                            placeholder="Current Password"
                             :toggleMask="true"
                             class="w-full mb-2 md:w-30rem"
                             inputClass="w-full"
@@ -155,13 +156,13 @@ function resetPassword() {
                         <label
                             for="password2"
                             class="block text-900 font-medium text-xl mb-2"
-                            >Mật Khẩu mới</label
+                            >New Password</label
                         >
                         <Password
                             id="password2"
                             :feedback="false"
                             v-model="matKhau.matKhauMoi"
-                            placeholder="Mật khẩu mới"
+                            placeholder="New Password"
                             :toggleMask="true"
                             class="w-full mb-2"
                             inputClass="w-full"
@@ -180,13 +181,13 @@ function resetPassword() {
                         <label
                             for="password3"
                             class="block text-900 font-medium text-xl mb-2"
-                            >Xác nhận mật Khẩu mới</label
-                        >
+                            >Confirm Password
+                        </label>
                         <Password
                             id="password3"
                             :feedback="false"
                             v-model="matKhau.xacNhanMatKhauMoi"
-                            placeholder="Xác nhận mật khẩu mới"
+                            placeholder="Confirm Password"
                             :toggleMask="true"
                             class="w-full mb-2"
                             inputClass="w-full"
@@ -203,12 +204,12 @@ function resetPassword() {
                         </div>
                         <div class="flex justify-content-between mt-3">
                             <Button
-                                label="Hủy"
+                                label="Cancel"
                                 class="w-5 p-3 text-xl"
                                 @click="resetPassword"
                             ></Button>
                             <Button
-                                label="Lưu"
+                                label="Save"
                                 class="w-5 p-3 text-xl"
                                 @click="handleChangePassword"
                             ></Button>
